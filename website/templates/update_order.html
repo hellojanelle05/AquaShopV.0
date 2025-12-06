@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %} Update Order Status {% endblock %}
+
+{% block body %}
+
+<h2>Update Order #{{ order.id }}</h2>
+
+<form action="" method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.order_status.label }}
+        {{ form.order_status(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.update(class="btn btn-primary") }}
+    </div>
+</form>
+
+{% endblock %}

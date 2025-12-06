@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1>Checkout - Order #{{ order_id }}</h1>
+    <p>Amount to Pay: ₱{{ '%.2f' % (amount / 100) }}</p>
+
+    <form action="{{ url_for('views.place_order', order_id=order_id) }}" method="POST">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" required>
+            <label class="form-check-label" for="cod">Cash on Delivery (COD)</label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="radio" name="payment_method" id="gcash" value="gcash" required>
+            <label class="form-check-label" for="gcash">GCash</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Place Order</button>
+    </form>
+</div>
+{% endblock %}

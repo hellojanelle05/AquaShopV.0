@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Order Details{% endblock %}
+
+{% block body %}
+
+<h2 class="mt-4 mb-4 text-light">Order #{{ order.id }} Details</h2>
+
+<div class="card bg-dark text-light mb-4">
+    <div class="card-body">
+        <h5>Order Information</h5>
+
+        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Payment:</strong> {{ order.payment_method }}</p>
+        <p><strong>Date Created:</strong> {{ order.date_created }}</p>
+    </div>
+</div>
+
+<h4 class="text-light">Ordered Items</h4>
+
+<table class="table table-dark table-hover mt-3 mb-3">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price (each)</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.product_name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₱{{ "%.2f"|format(item.price_each) }}</td>
+            <td>₱{{ "%.2f"|format(item.quantity * item.price_each) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4 class="text-light mt-4">
+    <strong>Grand Total:</strong> ₱{{ "%.2f"|format(order.total_price) }}
+</h4>
+
+<a href="/orders" class="btn btn-secondary mt-3">Back to Orders</a>
+
+{% endblock %}
