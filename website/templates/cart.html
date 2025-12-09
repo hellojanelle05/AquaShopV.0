@@ -1,77 +1,110 @@
 {% extends 'base.html' %}
 
-{% block title %} Cart {% endblock %}
-
+{% block title %}Cart{% endblock %}
 
 {% block body %}
 
 <div class="container my-5">
     <div class="row">
+
         {% if cart %}
 
         <h1 class="text-center mb-5" style="color: white;">Shopping Cart</h1>
+
         <div class="col-sm-8">
             <div class="card">
                 <div class="card-body">
 
                     {% for item in cart %}
+                    <div class="row mb-3">
 
-                    <div class="row">
+                        <!-- Image -->
                         <div class="col-sm-3 text-center align-self-center">
-                            <img src="{{ item.product.product_picture }}" alt="" class="img-fluid img-thumbnail shadow-sm" height="150px" width="150px">
+                            <img src="{{ item.product.product_picture }}" 
+                                 class="img-fluid img-thumbnail shadow-sm" 
+                                 height="150px" width="150px">
                         </div>
+
+                        <!-- Product Details -->
                         <div class="col-sm-9">
-                            <div>
-                                <h3>{{ item.product.product_name }}</h3>
-                                <div class="my-3">
-                                    <label for="quantity">Quantity</label>
-                                    <a class="minus-cart btn" pid="{{item.id}}"><i class="fas fa-minus-square fa-lg"></i></a>
-                                    <span id="quantity">{{ item.quantity }}</span>
-                                    <a class="plus-cart btn " pid="{{ item.id }}"><i class="fas fa-plus-square fa-lg"></i></a>
 
-                                </div>
+                            <h3>{{ item.product.product_name }}</h3>
 
-                                <div class="d-flex justify-content-between">
-                                    <p class="mb-0"><span><strong>Ksh {{ item.product.current_price }}</strong></span></p>
-                                    <a href="" class="remove-cart btn btn-sm btn-secondary mr-3 " pid="{{item.id}}">Remove</a>
-                                </div>
+                            <!-- Quantity Control -->
+                            <div class="my-3">
+                                <label>Quantity</label>
+
+                                <a class="minus-cart btn" data-id="{{ item.id }}">
+                                    <i class="fas fa-minus-square fa-lg"></i>
+                                </a>
+
+                                <span id="quantity{{ item.id }}">{{ item.quantity }}</span>
+
+                                <a class="plus-cart btn" data-id="{{ item.id }}">
+                                    <i class="fas fa-plus-square fa-lg"></i>
+                                </a>
                             </div>
+
+                            <!-- Price + Remove -->
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-0">
+                                    <strong>Ksh {{ item.product.current_price }}</strong>
+                                </p>
+
+                                <a href="{{ url_for('views.remove_from_cart', item_id=item.id) }}" 
+                                   class="btn btn-sm btn-danger">
+                                    Remove
+                                </a>
+                            </div>
+
                         </div>
                     </div>
+
                     <hr>
 
                     {% endfor %}
+
                 </div>
             </div>
         </div>
 
+        <!-- Summary -->
         <div class="col-sm-4">
             <div class="card">
                 <div class="card-body">
-                    <h3>Cart Summary </h3>
-                    <hr color="black">
+
+                    <h3>Cart Summary</h3>
+                    <hr>
+
                     <ul class="list-group">
                         {% for item in cart %}
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"><strong>{{item.product.product_name}}</strong><span id="amount">{{item.product.current_price}} X <span id="quantity{{item.id}}">{{ item.quantity}}</span></span></li>
-
+                        <li class="list-group-item d-flex justify-content-between border-0 px-0">
+                            <strong>{{ item.product.product_name }}</strong>
+                            <span>Ksh {{ item.product.current_price }} x {{ item.quantity }}</span>
+                        </li>
                         {% endfor %}
 
+                        <li class="list-group-item d-flex justify-content-between border-0 px-0">
+                            Amount  
+                            <span>Ksh {{ amount }}</span>
+                        </li>
 
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">Amout <span>Ksh <span id="amount_tt">{{ amount }}</span></span></li>
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                            <div style="margin-top: 15px;">
-                                <strong>Total</strong><small>(Including Shipping)</small>
+                        <li class="list-group-item d-flex justify-content-between border-0 px-0 mb-3">
+                            <div>
+                                <strong>Total</strong>
+                                <small>(Including Shipping)</small>
                             </div>
-                            <span><strong>Ksh </strong><span id="totalamount"><strong>{{ total }}</strong></span></span>
-    
+                            <span><strong>Ksh {{ total }}</strong></span>
                         </li>
 
                     </ul>
 
                     <div class="d-grid">
-                        <a href="{{ url_for('views.checkout') }}" class="btn btn-warning btn-lg">Proceed to Checkout</a></div>
+                        <a href="{{ url_for('views.checkout') }}" 
+                           class="btn btn-warning btn-lg">
+                           Proceed to Checkout
+                        </a>
+                    </div>
 
                 </div>
             </div>
@@ -84,6 +117,7 @@
         <h1 class="text-center mb-5" style="color: white;">Your Cart is Empty</h1>
 
         {% endif %}
+
     </div>
 </div>
 

@@ -22,7 +22,11 @@ def home():
 @login_required
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
-    existing = Cart.query.filter_by(customer_link=current_user.id, product_link=product_id).first()
+
+    existing = Cart.query.filter_by(
+        customer_link=current_user.id,
+        product_link=product_id
+    ).first()
 
     if existing:
         existing.quantity += 1
@@ -47,8 +51,70 @@ def add_to_cart(product_id):
 def cart():
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
     amount = sum(item.quantity * item.product.current_price for item in cart_items)
-    total = amount  # shipping can be added here if needed
-    return render_template("cart.html", cart=cart_items, amount=amount, total=total)
+    total = amount  # add shipping later if needed
+
+    return render_template(
+        "cart.html",
+        cart=cart_items,
+        amount=amount,
+        total=total
+    )
+
+
+########################################
+# REMOVE FROM CART
+########################################
+@views.route("/remove-from-cart/<int:item_id>")
+@login_required
+def remove_from_cart(item_id):
+    item = Cart.query.filter_by(
+        id=item_id,
+        customer_link=current_user.id
+    ).first()
+
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        flash("Item removed from cart!", "success")
+    else:
+        flash("Item not found!", "danger")
+
+    return redirect(url_for('views.cart'))
+
+
+########################################
+# UPDATE CART (AJAX)
+########################################
+@views.route("/update-cart", methods=["POST"])
+@login_required
+def update_cart():
+    item_id = request.form.get("item_id")
+    action = request.form.get("action")
+
+    item = Cart.query.filter_by(
+        id=item_id,
+        customer_link=current_user.id
+    ).first()
+
+    if not item:
+        return jsonify({"error": "Item not found"}), 404
+
+    if action == "plus":
+        item.quantity += 1
+
+    elif action == "minus":
+        item.quantity -= 1
+        if item.quantity < 1:
+            db.session.delete(item)
+            db.session.commit()
+            return jsonify({"success": True, "delete": True})
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "quantity": item.quantity
+    })
 
 
 ########################################
@@ -58,33 +124,40 @@ def cart():
 @login_required
 def checkout():
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
+
     if not cart_items:
-        flash("Your cart is empty", "warning")
+        flash("Your cart is empty.", "warning")
         return redirect(url_for('views.cart'))
 
-    total_amount = sum(item.quantity * item.product.current_price for item in cart_items)
+    total_amount = sum(
+        item.quantity * item.product.current_price for item in cart_items
+    )
 
-    # Create new order
+    # Create Order
     new_order = Order(
         customer_id=current_user.id,
         total_price=total_amount,
         status="pending",
-        payment_method="None"
+        payment_method="None",
+        date_created=datetime.utcnow()
     )
-    db.session.add(new_order)
-    db.session.flush()  # ensures new_order.id is available
 
-    # Add order items
+    db.session.add(new_order)
+    db.session.flush()
+
+    # Create Order Items
     for item in cart_items:
-        db.session.add(OrderItem(
+        order_item = OrderItem(
             order_id=new_order.id,
             product_id=item.product_link,
             quantity=item.quantity,
             price_each=item.product.current_price
-        ))
+        )
+        db.session.add(order_item)
 
-    # Clear cart
+    # Clear cart after placing order
     Cart.query.filter_by(customer_link=current_user.id).delete()
+
     db.session.commit()
 
     flash("Order placed successfully!", "success")
@@ -92,73 +165,40 @@ def checkout():
 
 
 ########################################
-# LIST USER ORDERS
+# USER — VIEW ALL ORDERS
 ########################################
 @views.route("/orders")
 @login_required
 def orders():
-    items = (
-        OrderItem.query
-        .join(Order, OrderItem.order_id == Order.id)
-        .filter(Order.customer_id == current_user.id)
-        .all()
-    )
-    return render_template("orders.html", orders=items)
+    orders = Order.query.filter_by(customer_id=current_user.id)\
+                        .order_by(Order.date_created.desc())\
+                        .all()
+
+    return render_template("orders.html", orders=orders)
 
 
 ########################################
-# ORDER DETAILS PAGE (USER)
+# USER — ORDER DETAILS
 ########################################
 @views.route("/order/<int:order_id>")
 @login_required
 def order_details(order_id):
-    order = Order.query.filter_by(id=order_id, customer_id=current_user.id).first_or_404()
+    order = Order.query.filter_by(
+        id=order_id,
+        customer_id=current_user.id
+    ).first_or_404()
+
     items = OrderItem.query.filter_by(order_id=order_id).all()
-    return render_template("order_details.html", order=order, items=items)
+
+    return render_template(
+        "order_details.html",
+        order=order,
+        items=items
+    )
 
 
 ########################################
-# REMOVE FROM CART
-########################################
-@views.route("/remove-from-cart/<int:item_id>")
-@login_required
-def remove_from_cart(item_id):
-    item = Cart.query.filter_by(id=item_id, customer_link=current_user.id).first()
-    if item:
-        db.session.delete(item)
-        db.session.commit()
-        flash("Item removed", "success")
-    return redirect(url_for('views.cart'))
-
-
-########################################
-# UPDATE CART QUANTITY (AJAX)
-########################################
-@views.route("/update-cart", methods=["POST"])
-@login_required
-def update_cart():
-    item_id = request.form.get("item_id")
-    action = request.form.get("action")
-    item = Cart.query.get(item_id)
-
-    if not item:
-        return jsonify({"error": "Item not found"}), 404
-
-    if action == "plus":
-        item.quantity += 1
-    elif action == "minus":
-        item.quantity -= 1
-        if item.quantity < 1:
-            db.session.delete(item)
-            db.session.commit()
-            return jsonify({"success": True, "delete": True})
-
-    db.session.commit()
-    return jsonify({"success": True, "quantity": item.quantity})
-
-
-########################################
-# ADMIN: VIEW ALL ORDERS
+# ADMIN — VIEW ALL ORDERS
 ########################################
 @views.route("/admin/orders")
 @login_required
