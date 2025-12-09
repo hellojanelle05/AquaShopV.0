@@ -51,7 +51,7 @@ def add_to_cart(product_id):
 def cart():
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
     amount = sum(item.quantity * item.product.current_price for item in cart_items)
-    total = amount  # add shipping later if needed
+    total = amount
 
     return render_template(
         "cart.html",
@@ -118,7 +118,7 @@ def update_cart():
 
 
 ########################################
-# CHECKOUT → CREATE ORDER
+# CHECKOUT PAGE (NO ORDER CREATED YET)
 ########################################
 @views.route("/checkout")
 @login_required
@@ -133,12 +133,36 @@ def checkout():
         item.quantity * item.product.current_price for item in cart_items
     )
 
-    # Create Order
+    return render_template(
+        "checkout.html",
+        cart=cart_items,
+        total=total_amount
+    )
+
+
+########################################
+# PLACE ORDER (CREATES ORDER + ITEMS)
+########################################
+@views.route("/place-order", methods=["POST"])
+@login_required
+def place_order():
+    payment_method = request.form.get("payment_method")
+
+    cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
+
+    if not cart_items:
+        flash("Your cart is empty.", "warning")
+        return redirect(url_for('views.cart'))
+
+    total_amount = sum(
+        item.quantity * item.product.current_price for item in cart_items
+    )
+
     new_order = Order(
         customer_id=current_user.id,
         total_price=total_amount,
         status="pending",
-        payment_method="None",
+        payment_method=payment_method,
         date_created=datetime.utcnow()
     )
 
@@ -147,13 +171,12 @@ def checkout():
 
     # Create Order Items
     for item in cart_items:
-        order_item = OrderItem(
+        db.session.add(OrderItem(
             order_id=new_order.id,
             product_id=item.product_link,
             quantity=item.quantity,
             price_each=item.product.current_price
-        )
-        db.session.add(order_item)
+        ))
 
     # Clear cart after placing order
     Cart.query.filter_by(customer_link=current_user.id).delete()
@@ -161,7 +184,7 @@ def checkout():
     db.session.commit()
 
     flash("Order placed successfully!", "success")
-    return redirect(url_for('views.orders'))
+    return redirect(url_for("views.orders"))
 
 
 ########################################
