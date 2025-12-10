@@ -1,19 +1,283 @@
-.d-flex .btn{
-    background: orange;
-    border: 2px solid orange;
+/* ===================================================================
+   AquaShop — style.css (Complete, DO NOT MISS LINES)
+   Theme: Full modern glass (Teal → Blue), Hover: Style C (image zoom + glow)
+   =================================================================== */
+
+/* -----------------------
+   MARINE GLASS BACKGROUND
+------------------------*/
+.marine-bg {
+    background: linear-gradient(135deg, #0f9ba5, #005f73);
+    background-attachment: fixed;
+    background-size: cover;
+    min-height: 100vh;
+    color: #eafcff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* optional subtle bubble/grid overlay */
+.marine-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.03) 1px, transparent 1px),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.03) 1.5px, transparent 1px),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 2px, transparent 1px);
+    background-size: 140px 140px;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: overlay;
+}
+
+/* ensure content sits above overlay */
+.container, .navbar, footer, .list-group {
+    position: relative;
+    z-index: 5;
+}
+
+/* -----------------------
+       GLASS ELEMENTS
+------------------------*/
+.glass-nav {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 6px 20px rgba(2,40,60,0.18);
+}
+
+.glass-footer {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: #cceff6;
+}
+
+.glass-dropdown {
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(92,225,230,0.25);
+}
+.dropdown-menu {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
+.glass-dropdown {
+    z-index: 9999 !important;
+}
+
+.glass-alert {
+    background: linear-gradient(90deg, rgba(32,212,137,0.12), rgba(92,225,230,0.07));
+    border: 1px solid rgba(32,212,137,0.25);
+    backdrop-filter: blur(6px);
+    color: #fff;
+}
+
+/* -----------------------
+        NAVBAR TEXT
+------------------------*/
+.brand-text {
+    color: #5ce1e6;
+    font-size: 30px;
+}
+
+.nav-link-marine {
+    color: #e7fbff !important;
+    font-size: 17px;
+    transition: color 180ms ease;
+}
+.nav-link-marine:hover {
+    color: #b8fff2 !important;
+}
+
+/* -----------------------
+         SEARCH
+------------------------*/
+.marine-input {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(92,225,230,0.18);
+    color: #e6fbff;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+.search-btn {
+    background: linear-gradient(135deg, #0f9ba5, #005f73);
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: 8px;
     color: #fff;
+    padding: 6px 12px;
+}
+.search-btn:hover {
+    filter: brightness(1.07);
+}
+
+/* -----------------------
+      CATEGORY LIST (left)
+------------------------*/
+#right1 .list-group-item {
+    background: rgba(255,255,255,0.06);
+    color: #eafcff;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: transform 220ms ease, background 220ms ease, color 220ms ease;
+    backdrop-filter: blur(4px);
+}
+#right1 .list-group-item:hover {
+    background: rgba(255,255,255,0.14);
+    color: #003840;
+    transform: translateX(6px);
+}
+
+/* -----------------------
+      TOP INFO CARDS (small)
+------------------------*/
+.container .row .col[style*="background-color: white"], /* defensive selector for your inline styles */
+.card-info {
+    background: rgba(255,255,255,0.90);
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: #163a3a;
+    box-shadow: 0 6px 18px rgba(2,40,60,0.08);
+}
+
+/* small images right column */
+.right2 {
+    margin-left: -10px;
+    height: 180px;
+    width: 180px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/* -----------------------
+      PRODUCT GRID & CARD
+------------------------*/
+/* wrapper grid (overrides inline gray row background) */
+#column {
+    background: transparent !important;
+    padding: 16px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+/* each product column tile: target your existing markup (#column .col) */
+#column .col {
+    /* make product tile like a glass card */
+    background: rgba(255,255,255,0.90); /* readable text on top of gradient */
+    border-radius: 12px;
+    padding: 10px;
+    margin: 4px;
+    width: 180px; /* keep your size consistent with existing image sizes */
+    box-shadow: 0 8px 20px rgba(1,30,45,0.12);
+    transition: box-shadow 220ms ease, transform 220ms ease, background 220ms ease;
+    overflow: hidden;
+}
+
+/* Prevent the whole grid or column from moving on hover (override previous rule) */
+#column:hover,
+#column .col:hover {
+    transform: none !important;
+}
+
+/* PRODUCT IMAGE — only the image will animate (style C) */
+#column .col img,
+#column .col img[alt] {
+    display: block;
+    width: 100%;
+    height: 202px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 320ms cubic-bezier(.2,.9,.3,1), box-shadow 320ms ease;
+}
+
+/* IMAGE HOVER: zoom + soft teal glow (only image moves) */
+#column .col img:hover {
+    transform: scale(1.06);
+    box-shadow: 0 18px 30px rgba(15,155,165,0.18), 0 6px 18px rgba(0,60,80,0.08);
+}
+
+/* PRODUCT TEXT */
+#column .col h6 {
+    color: #666;
+    font-size: 14px;
+    margin: 8px 0 4px 0;
+}
+#column .col h5 {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    margin: 0;
+    color: #07343a;
+}
+
+/* price / strike */
+#column .col p, #column .col strike {
+    margin: 4px 0;
+    color: #7a7a7a;
+}
+
+/* add button (keeps your original selector but with gradient) */
+#column .col .row .col a,
+.container .row .col .row .col a {
+    display: inline-block;
+    background: linear-gradient(135deg, #0f9ba5, #005f73);
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    transition: transform 160ms ease, filter 160ms ease;
+}
+#column .col .row .col a:hover,
+.container .row .col .row .col a:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.08);
+}
+
+/* items left text */
+#column .col .row p {
+    font-size: 13px;
+    color: #576b6d;
+    margin-top: 8px;
+}
+
+/* -----------------------
+      NAV ICONS / CART / ITEMS
+------------------------*/
+#items a.nav-link {
+    color: #eafcff !important;
+}
+#items a.nav-link:hover {
+    color: #bff9ef !important;
+}
+
+/* -----------------------
+      OLD STYLES PRESERVED (kept as requested)
+------------------------*/
+.d-flex .btn{
+    background: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 8px;
+    color: #020e36;
 }
 .d-flex .btn:hover{
     background: rgb(228, 150, 7);
     border: 2px solid rgb(228, 150, 7);
 }
 
+/* fix your older selector that used #right1 :hover — make it specific */
 #right1 :hover{
     color: orange;
     transition: 300ms;
 }
 
+/* keep right2 rule (already above) */
 .row .right2 {
     margin-left: -10px;
     height: 180px;
@@ -21,25 +285,100 @@
     border-radius: 10px;
 }
 
+/* keep this but use improved selector for link hover (fixed typo of space) */
 .container .row .col .row .col a {
-    background-color: orange;
+    background-color: rgb(21, 155, 4);
     padding: 10px;
     border-radius: 10px;
     text-decoration: none;
     color: white;
 
 }
-
-.container .row .col .row .col a :hover {
-    background-color: rgb(201, 132, 5);
-}
-#column :hover{
-    transform: scale(0.9);
-    transition: 450ms;
-    border-radius: 10px;
+.container .row .col .row .col a:hover {
+    background-color: rgb(172, 144, 23);
 }
 
-#items :hover {
-    color: orange;
+/* override the old #column:hover that caused entire grid movement */
+#column:hover {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* keep items hover behavior */
+#items:hover {
+    color: rgb(2, 71, 128);
     transition: 200ms;
+}
+
+/* -----------------------
+      RESPONSIVE
+------------------------*/
+@media (max-width: 992px) {
+    /* stack columns for medium screens */
+    #column {
+        justify-content: center;
+    }
+    #column .col {
+        width: 45%;
+    }
+    .container .row .col .row .col a {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    /* mobile adjustments */
+    #column .col {
+        width: 100%;
+    }
+    .right2 {
+        display: none;
+    }
+    .marine-input { width: 70%; }
+}
+
+/* ---------------------------------
+   FIX HOVER COLORS NOT APPEARING
+----------------------------------*/
+
+/* List group links (left categories) */
+.list-group-item-action:hover {
+    color: #5ce1e6 !important;
+    background: rgba(255,255,255,0.05) !important;
+    transition: 0.2s;
+}
+
+/* Navbar hover override */
+.navbar .nav-link:hover {
+    color: #5ce1e6 !important;
+}
+
+/* Product cards */
+.product-card:hover {
+    transform: scale(0.97);
+    background: rgba(255,255,255,0.18);
+    border: 1px solid #5ce1e6;
+    transition: 0.25s;
+}
+
+/* Button hover highlight */
+.btn:hover {
+    background-color: #5ce1e6 !important;
+    border-color: #5ce1e6 !important;
+    color: #002c3e !important;
+}
+
+.navbar {
+    position: relative;
+    z-index: 99999 !important;
+}
+
+.flash-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999999;
+    width: max-content;
+    text-align: center;
 }

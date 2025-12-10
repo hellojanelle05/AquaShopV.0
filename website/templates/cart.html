@@ -16,12 +16,12 @@
                 <div class="card-body">
 
                     {% for item in cart %}
-                    <div class="row mb-3">
+                    <div class="row mb-3" id="cart-item-{{ item.id }}">
 
                         <!-- Image -->
                         <div class="col-sm-3 text-center align-self-center">
-                            <img src="{{ item.product.product_picture }}" 
-                                 class="img-fluid img-thumbnail shadow-sm" 
+                            <img src="{{ item.product.product_picture }}"
+                                 class="img-fluid img-thumbnail shadow-sm"
                                  height="150px" width="150px">
                         </div>
 
@@ -34,13 +34,13 @@
                             <div class="my-3">
                                 <label>Quantity</label>
 
-                                <a class="minus-cart btn" data-id="{{ item.id }}">
+                                <a class="minus-cart btn" pid="{{ item.id }}">
                                     <i class="fas fa-minus-square fa-lg"></i>
                                 </a>
 
                                 <span id="quantity{{ item.id }}">{{ item.quantity }}</span>
 
-                                <a class="plus-cart btn" data-id="{{ item.id }}">
+                                <a class="plus-cart btn" pid="{{ item.id }}">
                                     <i class="fas fa-plus-square fa-lg"></i>
                                 </a>
                             </div>
@@ -48,10 +48,10 @@
                             <!-- Price + Remove -->
                             <div class="d-flex justify-content-between">
                                 <p class="mb-0">
-                                    <strong>Ksh {{ item.product.current_price }}</strong>
+                                    <strong>Php {{ item.product.current_price }}</strong>
                                 </p>
 
-                                <a href="{{ url_for('views.remove_from_cart', item_id=item.id) }}" 
+                                <a href="{{ url_for('views.remove_from_cart', item_id=item.id) }}"
                                    class="btn btn-sm btn-danger">
                                     Remove
                                 </a>
@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <!-- Summary -->
+        <!-- SUMMARY -->
         <div class="col-sm-4">
             <div class="card">
                 <div class="card-body">
@@ -77,16 +77,21 @@
                     <hr>
 
                     <ul class="list-group">
+
                         {% for item in cart %}
                         <li class="list-group-item d-flex justify-content-between border-0 px-0">
                             <strong>{{ item.product.product_name }}</strong>
-                            <span>Ksh {{ item.product.current_price }} x {{ item.quantity }}</span>
+
+                            <span>
+                                Php {{ item.product.current_price }}
+                                <span id="summary-qty-{{ item.id }}">x {{ item.quantity }}</span>
+                            </span>
                         </li>
                         {% endfor %}
 
                         <li class="list-group-item d-flex justify-content-between border-0 px-0">
                             Amount  
-                            <span>Ksh {{ amount }}</span>
+                            <span id="amount">Php {{ amount }}</span>
                         </li>
 
                         <li class="list-group-item d-flex justify-content-between border-0 px-0 mb-3">
@@ -94,14 +99,13 @@
                                 <strong>Total</strong>
                                 <small>(Including Shipping)</small>
                             </div>
-                            <span><strong>Ksh {{ total }}</strong></span>
+                            <span id="total"><strong>Php {{ total }}</strong></span>
                         </li>
 
                     </ul>
 
                     <div class="d-grid">
-                        <a href="{{ url_for('views.checkout') }}" 
-                           class="btn btn-warning btn-lg">
+                        <a href="{{ url_for('views.checkout') }}" class="btn btn-warning btn-lg">
                            Proceed to Checkout
                         </a>
                     </div>
@@ -121,5 +125,37 @@
     </div>
 </div>
 
+<!-- AJAX SCRIPT -->
+<script>
+    $(".plus-cart").click(function () {
+        var id = $(this).attr("pid");
+
+        $.ajax({
+            url: "/pluscart",
+            data: { item_id: id },
+            success: function (data) {
+                $("#quantity" + id).text(data.quantity);
+                $("#summary-qty-" + id).text("x " + data.quantity);
+                $("#amount").text("Php " + data.amount);
+                $("#total").text("Php " + data.total);
+            }
+        });
+    });
+
+    $(".minus-cart").click(function () {
+        var id = $(this).attr("pid");
+
+        $.ajax({
+            url: "/minuscart",
+            data: { item_id: id },
+            success: function (data) {
+                $("#quantity" + id).text(data.quantity);
+                $("#summary-qty-" + id).text("x " + data.quantity);
+                $("#amount").text("Php " + data.amount);
+                $("#total").text("Php " + data.total);
+            }
+        });
+    });
+</script>
 
 {% endblock %}

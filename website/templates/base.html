@@ -4,76 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Bootstrap + Icons -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" ></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/e24507d923.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" />
 
-    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <!-- NEW: Global Marine Glass Theme -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <title>SailFord | {% block title %} {% endblock %}</title>
+    <title>AquaShop | {% block title %}{% endblock %}</title>
 </head>
 <body style="background-color: #0097b2;">
 
+<body class="marine-bg">
 
-    <!-- navbar section -->
-    <nav class="navbar navbar-expand-lg" style="background-color: white;">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg glass-nav">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#" style="color: #5ce1e6; font-size: 30px; margin-right: -2px;">
-          <i class="fa-brands fa-amazon"></i>
+
+        <a class="navbar-brand brand-text" href="/">
+          <i class="fa-solid fa-fish-fins"></i> AquaShop
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/" style="font-family: cursive; font-size: 19px;">SailFord</a>
+              <a class="nav-link nav-link-marine" href="/">Home</a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link text-grey" href="#" style="font-size: 17px;">About Us</a>
+              <a class="nav-link nav-link-marine" href="#">About Us</a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link text-grey" href="#" style="font-size: 17px;">Contact us</a>
+              <a class="nav-link nav-link-marine" href="#">Contact</a>
             </li>
+
           </ul>
 
-          <form class="d-flex" role="search" action="/search" style="margin-right: 170px;" method="POST">
-            <input class="form-control me-2" name="search" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn" type="submit">Search</button>
+          <!-- SEARCH -->
+          <form class="d-flex search-form" role="search" action="/search" method="POST">
+            <input class="form-control marine-input" name="search" type="search" placeholder="Search">
+            <button class="btn search-btn" type="submit">Search</button>
           </form>
+
         </div>
 
-        
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-          <li class="nav-item mx-2" id="items">
-            
+          <!-- CART -->
+          <li class="nav-item mx-2">
             {% if cart | length < 1 %}
-            <a class="nav-link text-grey" href="/cart"><span class="badge bg-success"></span> Cart
-              <i class="fa-solid fa-cart-shopping"></i>
-            </a>
+              <a class="nav-link nav-link-marine" href="/cart">
+                Cart <i class="fa-solid fa-cart-shopping"></i>
+              </a>
             {% else %}
-            <a class="nav-link text-grey" href="/cart"><span class="badge bg-success"></span> Cart
-              <i class="bi bi-{{ cart | length }}-square-fill"></i>
-            </a>
-            
+              <a class="nav-link nav-link-marine" href="/cart">
+                Cart <i class="bi bi-{{ cart|length }}-square-fill"></i>
+              </a>
             {% endif %}
             
             
           </li>
 
-          <li class="nav-item mx-2" id="items">
-            <a class="nav-link text-grey" href="#"><span class="badge bg-success"></span> WishList
-              <i class="fa-solid fa-heart"></i>
-            </a>
+          <!-- WISHLIST -->
+          <li class="nav-item mx-2">
+            <a class="nav-link nav-link-marine" href="#"><i class="fa-solid fa-heart"></i> Wishlist</a>
           </li>
 
           
@@ -106,45 +113,35 @@
       </div>
     </nav>
 
-
-    {% for message in get_flashed_messages() %}
-
-    <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top: 5px;">
-        <strong>{{ message }}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    
-    </div>
-    {% endfor %}
-
-    {% block body %}
-
-
-    {% endblock %}
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
 
-    <footer class="container-fluid  text-center p-2 mt-5" style="background-color: #5ce1e6; color: white;">
-      <a href="https://github.com/Frost-Codes" style="color: white;">Amazon</a> | <span>
-        <i class="fa-sharp fa-regular fa-copyright"></i></span> 2023 All rights reserved
+    <!-- MAIN BODY -->
+    {% block body %}{% endblock %}
 
+    <!-- FOOTER -->
+    <footer class="glass-footer text-center p-2 mt-5">
+      <a href="">AquaShop</a> |
+      <span><i class="fa-regular fa-copyright"></i></span>
+      2025 All rights reserved
     </footer>
 
-    <script src="{{ url_for( 'static', filename='js/owl.carousel.min.js') }}"></script>
-    <script src="{{ url_for( 'static', filename='js/all.min.js') }}"></script>
-    <script src="{{ url_for( 'static', filename='js/jquery.js') }}"></script>
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/myScript.js') }}"></script>
 
-    <script src="{{ url_for( 'static', filename='js/myScript.js') }}"></script>
-
-
-
-</body>
-    
-
-
-
-
-
-
-    
-    
 </body>
 </html>

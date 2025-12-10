@@ -6,6 +6,57 @@ from datetime import datetime
 
 views = Blueprint('views', __name__)
 
+
+########################################
+# AJAX — PLUS CART
+########################################
+@views.route('/pluscart')
+@login_required
+def plus_cart():
+    item_id = request.args.get('item_id')
+    cart_item = Cart.query.get(int(item_id))
+
+    cart_item.quantity += 1
+    db.session.commit()
+
+    cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
+
+    amount = sum(i.quantity * i.product.current_price for i in cart_items)
+    total = amount
+
+    return jsonify({
+        'quantity': cart_item.quantity,
+        'amount': amount,
+        'total': total
+    })
+
+
+########################################
+# AJAX — MINUS CART
+########################################
+@views.route('/minuscart')
+@login_required
+def minus_cart():
+    item_id = request.args.get('item_id')
+    cart_item = Cart.query.get(int(item_id))
+
+    if cart_item.quantity > 1:
+        cart_item.quantity -= 1
+
+    db.session.commit()
+
+    cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
+
+    amount = sum(i.quantity * i.product.current_price for i in cart_items)
+    total = amount
+
+    return jsonify({
+        'quantity': cart_item.quantity,
+        'amount': amount,
+        'total': total
+    })
+
+
 ########################################
 # HOME PAGE
 ########################################
@@ -82,6 +133,7 @@ def remove_from_cart(item_id):
     return redirect(url_for('views.cart'))
 
 
+
 ########################################
 # UPDATE CART (AJAX)
 ########################################
@@ -118,7 +170,7 @@ def update_cart():
 
 
 ########################################
-# CHECKOUT PAGE (NO ORDER CREATED YET)
+# CHECKOUT PAGE
 ########################################
 @views.route("/checkout")
 @login_required
@@ -141,7 +193,7 @@ def checkout():
 
 
 ########################################
-# PLACE ORDER (CREATES ORDER + ITEMS)
+# PLACE ORDER
 ########################################
 @views.route("/place-order", methods=["POST"])
 @login_required
@@ -188,7 +240,7 @@ def place_order():
 
 
 ########################################
-# USER — VIEW ALL ORDERS
+# USER — VIEW ORDERS
 ########################################
 @views.route("/orders")
 @login_required
@@ -232,7 +284,7 @@ def admin_orders():
 
 
 ########################################
-# ADMIN: VIEW ORDER DETAILS
+# ADMIN — ORDER DETAILS
 ########################################
 @views.route("/admin/order/<int:order_id>")
 @login_required
@@ -243,7 +295,7 @@ def admin_order_details(order_id):
 
 
 ########################################
-# ADMIN: UPDATE ORDER STATUS
+# ADMIN — UPDATE ORDER
 ########################################
 @views.route("/admin/order/<int:order_id>/update", methods=["GET", "POST"])
 @login_required
@@ -259,3 +311,19 @@ def update_order_status(order_id):
             return redirect(url_for("views.admin_orders"))
 
     return render_template("update_item.html", order=order)
+
+
+@views.route('/search', methods=['POST'])
+def search():
+    query = request.form.get('search', '').strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(request.referrer)
+
+    # FIND ITEMS MATCHING SEARCH
+    items = Product.query.filter(
+        Product.product_name.ilike(f"%{query}%")
+    ).all()
+
+    return render_template("search.html", items=items)

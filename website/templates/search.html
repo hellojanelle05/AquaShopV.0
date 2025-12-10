@@ -1,47 +1,43 @@
 {% extends 'base.html' %}
-
-{% block title %} Search {% endblock %}
-
+{% block title %}Search{% endblock %}
 
 {% block body %}
 
-{% if items | length < 1 %}
-<h3 style="color: white;">No Items Match your Search query</h3>
+{% if items|length < 1 %}
+<h3 class="text-center mt-5" style="color: white;">No Items Match Your Search Query</h3>
 
 {% else %}
 
+<div class="container my-5">
 
-<div class="container text-center">
-    <div class="row" style="margin: 8px; background-color: rgb(219, 218, 218);" id="column">
+    <div class="row justify-content-center g-4">
 
         {% for item in items %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
 
-        <div class="col" style="background-color: white;">
-        
-            <img src="{{ item.product_picture }}" alt="" style="height: 202px; width: 180px; border-radius: 10px;">
+            <div class="card shadow-sm" style="width: 100%; max-width: 260px; border-radius: 12px;">
 
-            <div class="row" style="margin-top: 5px;">
-                <h6 style="color: gray;">{{ item.product_name }}</h6>
-            </div>
+                <img src="{{ item.product_picture }}" 
+                    class="card-img-top"
+                    style="height: 180px; object-fit: cover; border-radius: 12px 12px 0 0;">
 
-            <div class="row" style="margin-top: 10px;">
-            
-                <div class="col">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">{{ item.product_name }}</h6>
 
-                    <h5 style="font-weight: 600; font-family: 'Times New Roman', Times, serif;">Ksh {{ item.current_price }}</h5>
-                    <strike><p style="color: gray;">Ksh {{ item.previous_price}}</p></strike>
+                    <h5 class="fw-bold">Php {{ item.current_price }}</h5>
+                    <p><strike class="text-muted">Php {{ item.previous_price }}</strike></p>
+
+                    <p class="text-muted">{{ item.in_stock }} Items Left</p>
+
+                    <a href="/add-to-cart/{{ item.id }}" 
+                       class="btn btn-primary w-100" 
+                       style="border-radius: 8px;">
+                        Add to Cart
+                    </a>
                 </div>
-
-                <div class="col">
-                    <a href="/add-to-cart/{{ item.id }}">Add</a>
-                </div>
             
             </div>
 
-            <div class="row">
-                <p>{{ item.in_stock }} Items Left</p>
-            </div>
-        </div>
     
         {% endfor %}
 

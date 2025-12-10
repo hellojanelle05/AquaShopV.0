@@ -1,72 +1,41 @@
-$('.plus-cart').click(function(){
-    console.log('Button clicked')
-
-    var id = $(this).attr('pid').toString()
-    var quantity = this.parentNode.children[2]
+$(".plus-cart").click(function() {
+    var id = $(this).attr("pid");
+    var quantity = this.parentNode.children[2];
 
     $.ajax({
-        type: 'GET',
-        url: '/pluscart',
+        type: "POST",
+        url: "/update-cart",
         data: {
-            cart_id: id
+            item_id: id,
+            action: "plus"
         },
-        
-        success: function(data){
-            console.log(data)
-            quantity.innerText = data.quantity
-            document.getElementById(`quantity${id}`).innerText = data.quantity
-            document.getElementById('amount_tt').innerText = data.amount
-            document.getElementById('totalamount').innerText = data.total
-
+        success: function(data) {
+            quantity.innerText = data.quantity;
+            document.getElementById(`quantity${id}`).innerText = data.quantity;
         }
-    })
-})
+    });
+});
 
-
-$('.minus-cart').click(function(){
-    console.log('Button clicked')
-
-    var id = $(this).attr('pid').toString()
-    var quantity = this.parentNode.children[2]
+$(".minus-cart").click(function() {
+    var id = $(this).attr("pid");
+    var quantity = this.parentNode.children[2];
 
     $.ajax({
-        type: 'GET',
-        url: '/minuscart',
+        type: "POST",
+        url: "/update-cart",
         data: {
-            cart_id: id
+            item_id: id,
+            action: "minus"
         },
-        
-        success: function(data){
-            console.log(data)
-            quantity.innerText = data.quantity
-            document.getElementById(`quantity${id}`).innerText = data.quantity
-            document.getElementById('amount_tt').innerText = data.amount
-            document.getElementById('totalamount').innerText = data.total
+        success: function(data) {
+            if (data.delete) {
+                // Remove item
+                document.getElementById(`cart-item-${id}`).remove();
+                return;
+            }
 
+            quantity.innerText = data.quantity;
+            document.getElementById(`quantity${id}`).innerText = data.quantity;
         }
-    })
-})
-
-
-$('.remove-cart').click(function(){
-    
-    var id = $(this).attr('pid').toString()
-
-    var to_remove = this.parentNode.parentNode.parentNode.parentNode
-
-    $.ajax({
-        type: 'GET',
-        url: '/removecart',
-        data: {
-            cart_id: id
-        },
-
-        success: function(data){
-            document.getElementById('amount_tt').innerText = data.amount
-            document.getElementById('totalamount').innerText = data.total
-            to_remove.remove()
-        }
-    })
-
-
-})
+    });
+});
