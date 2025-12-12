@@ -39,8 +39,8 @@ class ShopItemsForm(FlaskForm):
 
 class OrderForm(FlaskForm):
     order_status = SelectField('Order Status', choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'),
-                                                        ('Out for delivery', 'Out for delivery'),
-                                                        ('Delivered', 'Delivered'), ('Canceled', 'Canceled')])
+                                                        ('Ready For Pick-Up', 'Ready For Pick-Up'),
+                                                        ('Picked-Up', 'Picked-Up'), ('Canceled', 'Canceled')])
 
     update = SubmitField('Update Status')
 
