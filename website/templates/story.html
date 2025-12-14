@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Our Story{% endblock %}
+
+{% block body %}
+
+<div class="container py-5">
+
+    <h1 class="text-center brand-text mb-5" style="font-size: 3.5rem;">Our Story</h1>
+
+    <h3 class="mt-4 mb-3 text-white-50">Meet The Developers</h3>
+
+    <div id="developer-column" class="row justify-content-center" style="
+        background: transparent !important;
+        padding: 16px 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; /* Increased gap for better separation */
+        align-items: stretch; /* Ensure cards have equal height */
+    ">
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/dev_ace.jpg') }}" alt="Ace V. Santillan" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Santillan, Ace V.</h5>
+            <p style="color: #666; font-size: 14px;">leads the entire project while securely structuring and maintaining the core operational database for AquaShop.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/dev_janelle.jpg') }}" alt="Salva Janelle P." loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Salva Janelle P.</h5>
+            <p style="color: #666; font-size: 14px;">designed the interface and implemented the crucial backend logic necessary for smooth website functionality.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/dev_haide.jpg') }}" alt="Leynes Haide Kiel B." loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Leynes Haide Kiel B.</h5>
+            <p style="color: #666; font-size: 14px;">developed the foundational Entity-Relationship Diagram (ERD) to ensure that all system data is logically interconnected and stable.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/dev_christopher.jpg') }}" alt="Mayores Christopher B" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Mayores Christopher B</h5>
+            <p style="color: #666; font-size: 14px;">ensures the quality of the platform by diligently creating and managing all accurate product and content data presented to the users.</p>
+        </div>
+
+    </div>
+
+    <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 40px 0;">
+
+    <h3 class="mt-4 mb-3 text-white-50">Our Partner Fisherman's</h3>
+
+    <div id="farmer-column" class="row justify-content-center" style="
+        background: transparent !important;
+        padding: 16px 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: stretch;
+    ">
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/fisher1.jpg') }}" alt="Farmer Name 1" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Ramon Dela Cruz</h5>
+            <p style="color: #666; font-size: 14px;">His yellowfin tuna is prized for its large size, firm meat, and distinct yellow fins. This versatile catch is highly valued for high-end uses like sashimi, tuna steaks, and grilled dishes.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/fisher2.jpg') }}" alt="Farmer Name 2" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Marco Villanueva</h5>
+            <p style="color: #666; font-size: 14px;">A key supplier of small Sardines (locally known as Tamban). These small, protein-rich fish are a staple food item, perfect for simple stews, frying, or used in the production of dried goods for local communities.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/fisher3.jpg') }}" alt="Farmer Name 3" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Joel Ramirez</h5>
+            <p style="color: #666; font-size: 14px;">His medium-sized, firm, and flavorful skipjack tuna is an important local catch, widely used for dishes like grilled or fried tuna, and is a primary source for processed products such as canned or smoked tuna.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/fisher4.jpg') }}" alt="Farmer Name 4" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Rico Bautista</h5>
+            <p style="color: #666; font-size: 14px;">A reliable vendor of Mackerel (locally known as Hasa-hasa). Mackerel is a popular, affordable, and nutritious fish known for its oily, rich-flavored meat. It is commonly sold fresh and favored for frying, grilling, or cooking in vinegar-based Filipino dishes.</p>
+        </div>
+
+        <div class="col" style="width: 220px; min-width: 200px;">
+            <img src="{{ url_for('static', filename='images/fisher5.jpg') }}" alt="Farmer Name 5" loading="lazy">
+            <h5 class="mt-2" style="font-weight: 700; color: #07343a;">Jun Carlos Navarro</h5>
+            <p style="color: #666; font-size: 14px;">Provides high-quality Round Scad (locally known as Galunggong). This versatile fish is a household staple in the Philippines, widely consumed due to its great taste and affordability, often prepared simply fried or simmered in stews.</p>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    #developer-column .col,
+    #farmer-column .col {
+        background: rgba(255,255,255,0.90);
+        border-radius: 12px;
+        padding: 10px;
+        margin: 4px;
+        box-shadow: 0 8px 20px rgba(1,30,45,0.12);
+        transition: box-shadow 220ms ease, transform 220ms ease, background 220ms ease;
+        overflow: hidden;
+        color: #07343a;
+        text-align: center; 
+    }
+
+    #developer-column .col img,
+    #farmer-column .col img {
+        display: block;
+        width: 100%;
+        height: 202px; 
+        object-fit: cover;
+        border-radius: 10px;
+        transition: transform 320ms cubic-bezier(.2,.9,.3,1), box-shadow 320ms ease;
+        margin-bottom: 8px; 
+    }
+
+    #developer-column .col img:hover,
+    #farmer-column .col img:hover {
+        transform: scale(1.06);
+        box-shadow: 0 18px 30px rgba(15,155,165,0.18), 0 6px 18px rgba(0,60,80,0.08);
+    }
+
+    @media (max-width: 992px) {
+        #developer-column,
+        #farmer-column {
+            justify-content: center;
+        }
+    }
+    @media (max-width: 576px) {
+        #developer-column .col,
+        #farmer-column .col {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}

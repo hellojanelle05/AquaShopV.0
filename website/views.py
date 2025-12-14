@@ -64,7 +64,16 @@ def minus_cart():
 def home():
     items = Product.query.all()
     return render_template("home.html", items=items)
+########################################
+# OUR STORY PAGE
+########################################
+@views.route('/story')
+def story_page():
+    cart_length = 0
+    if current_user.is_authenticated:
+        cart_length = Cart.query.filter_by(customer_link=current_user.id).count()
 
+    return render_template("story.html", cart=list(range(cart_length))) 
 
 ########################################
 # ADD TO CART
@@ -193,23 +202,23 @@ def checkout():
 
 
 ########################################
-# PLACE ORDER
+# PLACE ORDER (REVISED & FIXED)
 ########################################
 @views.route("/place-order", methods=["POST"])
 @login_required
 def place_order():
     payment_method = request.form.get("payment_method")
 
+    # Get items in cart
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
-
     if not cart_items:
         flash("Your cart is empty.", "warning")
-        return redirect(url_for('views.cart'))
+        return redirect(url_for("views.cart"))
 
-    total_amount = sum(
-        item.quantity * item.product.current_price for item in cart_items
-    )
+    # Compute total amount
+    total_amount = sum(item.quantity * item.product.current_price for item in cart_items)
 
+    # Create order
     new_order = Order(
         customer_id=current_user.id,
         total_price=total_amount,
@@ -217,26 +226,43 @@ def place_order():
         payment_method=payment_method,
         date_created=datetime.utcnow()
     )
-
     db.session.add(new_order)
-    db.session.flush()
+    db.session.flush()   # ✔ Ensures new_order.id is available
 
-    # Create Order Items
+    # PROCESS EACH ITEM
     for item in cart_items:
-        db.session.add(OrderItem(
+
+        # 1. Get actual product
+        product = Product.query.get(item.product_link)
+
+        # 2. Safety stock check
+        if product.in_stock < item.quantity:
+            flash(f"Insufficient stock for {product.product_name}. Please adjust your cart.", "danger")
+            db.session.rollback()
+            return redirect(url_for("views.checkout"))
+
+        # 3. Deduct stock
+        product.in_stock -= item.quantity
+        db.session.add(product)
+
+        # 4. Create Order Item entry
+        order_item = OrderItem(
             order_id=new_order.id,
             product_id=item.product_link,
             quantity=item.quantity,
             price_each=item.product.current_price
-        ))
+        )
+        db.session.add(order_item)
 
-    # Clear cart after placing order
+    # 5. Clear cart
     Cart.query.filter_by(customer_link=current_user.id).delete()
 
+    # 6. Final commit
     db.session.commit()
 
     flash("Order placed successfully!", "success")
     return redirect(url_for("views.orders"))
+
 
 
 ########################################
