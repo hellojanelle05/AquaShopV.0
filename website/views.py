@@ -62,18 +62,28 @@ def minus_cart():
 ########################################
 @views.route('/')
 def home():
+
+    # Admin redirect → Admin Dashboard
+    if current_user.is_authenticated and current_user.id == 1:
+        return redirect(url_for('views.admin_page'))
+
     items = Product.query.all()
     return render_template("home.html", items=items)
+
 ########################################
 # OUR STORY PAGE
 ########################################
 @views.route('/story')
 def story_page():
     cart_length = 0
+
     if current_user.is_authenticated:
+        if current_user.id == 1:
+            return redirect(url_for('views.admin_orders'))
+
         cart_length = Cart.query.filter_by(customer_link=current_user.id).count()
 
-    return render_template("story.html", cart=list(range(cart_length))) 
+    return render_template("story.html", cart=list(range(cart_length)))
 
 ########################################
 # ADD TO CART
@@ -81,6 +91,12 @@ def story_page():
 @views.route("/add-to-cart/<int:product_id>")
 @login_required
 def add_to_cart(product_id):
+
+    # BLOCK ADMIN FROM ORDERING
+    if current_user.id == 1:
+        flash("Admins cannot place orders.", "warning")
+        return redirect(url_for('views.admin_orders'))
+
     product = Product.query.get_or_404(product_id)
 
     existing = Cart.query.filter_by(
@@ -109,6 +125,11 @@ def add_to_cart(product_id):
 @views.route("/cart")
 @login_required
 def cart():
+
+    # BLOCK ADMIN FROM CART
+    if current_user.id == 1:
+        return redirect(url_for('views.admin_orders'))
+
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
     amount = sum(item.quantity * item.product.current_price for item in cart_items)
     total = amount
@@ -117,7 +138,7 @@ def cart():
         "cart.html",
         cart=cart_items,
         amount=amount,
-        total=total
+        total=amount
     )
 
 
@@ -144,7 +165,7 @@ def remove_from_cart(item_id):
 
 
 ########################################
-# UPDATE CART (AJAX)
+# UPDATE CART — AJAX
 ########################################
 @views.route("/update-cart", methods=["POST"])
 @login_required
@@ -184,6 +205,10 @@ def update_cart():
 @views.route("/checkout")
 @login_required
 def checkout():
+
+    if current_user.id == 1:
+        return redirect(url_for('views.admin_orders'))
+
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
 
     if not cart_items:
@@ -194,23 +219,24 @@ def checkout():
         item.quantity * item.product.current_price for item in cart_items
     )
 
-    return render_template(
-        "checkout.html",
-        cart=cart_items,
-        total=total_amount
-    )
-
+    return render_template("checkout.html", cart=cart_items, total=total_amount)
 
 ########################################
-# PLACE ORDER (REVISED & FIXED)
+# PLACE ORDER — FINAL
 ########################################
 @views.route("/place-order", methods=["POST"])
 @login_required
 def place_order():
+
+    # BLOCK ADMIN
+    if current_user.id == 1:
+        return redirect(url_for('views.admin_orders'))
+
     payment_method = request.form.get("payment_method")
 
     # Get items in cart
     cart_items = Cart.query.filter_by(customer_link=current_user.id).all()
+
     if not cart_items:
         flash("Your cart is empty.", "warning")
         return redirect(url_for("views.cart"))
@@ -226,8 +252,9 @@ def place_order():
         payment_method=payment_method,
         date_created=datetime.utcnow()
     )
+
     db.session.add(new_order)
-    db.session.flush()   # ✔ Ensures new_order.id is available
+    db.session.flush()
 
     # PROCESS EACH ITEM
     for item in cart_items:
@@ -235,9 +262,9 @@ def place_order():
         # 1. Get actual product
         product = Product.query.get(item.product_link)
 
-        # 2. Safety stock check
+        # STOCK CHECK
         if product.in_stock < item.quantity:
-            flash(f"Insufficient stock for {product.product_name}. Please adjust your cart.", "danger")
+            flash(f"Insufficient stock for {product.product_name}.", "danger")
             db.session.rollback()
             return redirect(url_for("views.checkout"))
 
@@ -271,6 +298,10 @@ def place_order():
 @views.route("/orders")
 @login_required
 def orders():
+
+    if current_user.id == 1:
+        return redirect(url_for('views.admin_orders'))
+
     orders = Order.query.filter_by(customer_id=current_user.id)\
                         .order_by(Order.date_created.desc())\
                         .all()
@@ -284,6 +315,7 @@ def orders():
 @views.route("/order/<int:order_id>")
 @login_required
 def order_details(order_id):
+
     order = Order.query.filter_by(
         id=order_id,
         customer_id=current_user.id
@@ -291,12 +323,7 @@ def order_details(order_id):
 
     items = OrderItem.query.filter_by(order_id=order_id).all()
 
-    return render_template(
-        "order_details.html",
-        order=order,
-        items=items
-    )
-
+    return render_template("order_details.html", order=order, items=items)
 
 ########################################
 # ADMIN — VIEW ALL ORDERS
@@ -304,28 +331,24 @@ def order_details(order_id):
 @views.route("/admin/orders")
 @login_required
 def admin_orders():
-    # TODO: optionally check if current_user is admin
+
+    if current_user.id != 1:
+        return redirect(url_for('views.home'))
+
     orders = Order.query.order_by(Order.date_created.desc()).all()
     return render_template("view_orders.html", orders=orders)
 
 
 ########################################
-# ADMIN — ORDER DETAILS
-########################################
-@views.route("/admin/order/<int:order_id>")
-@login_required
-def admin_order_details(order_id):
-    order = Order.query.get_or_404(order_id)
-    items = OrderItem.query.filter_by(order_id=order_id).all()
-    return render_template("view_orders.html", order=order, items=items)
-
-
-########################################
-# ADMIN — UPDATE ORDER
+# ADMIN — UPDATE ORDER STATUS
 ########################################
 @views.route("/admin/order/<int:order_id>/update", methods=["GET", "POST"])
 @login_required
 def update_order_status(order_id):
+
+    if current_user.id != 1:
+        return redirect(url_for('views.home'))
+
     order = Order.query.get_or_404(order_id)
 
     if request.method == "POST":
@@ -333,12 +356,14 @@ def update_order_status(order_id):
         if new_status:
             order.status = new_status
             db.session.commit()
-            flash("Order status updated successfully!", "success")
+            flash("Order status updated!", "success")
             return redirect(url_for("views.admin_orders"))
 
     return render_template("update_item.html", order=order)
 
-
+########################################
+# SEARCH
+########################################
 @views.route('/search', methods=['POST'])
 def search():
     query = request.form.get('search', '').strip()
@@ -353,3 +378,15 @@ def search():
     ).all()
 
     return render_template("search.html", items=items)
+
+########################################
+# ADMIN PAGE / DASHBOARD
+########################################
+@views.route('/admin-page')
+@login_required
+def admin_page():
+
+    if current_user.id != 1:
+        return redirect(url_for('views.home'))
+
+    return render_template("admin.html")

@@ -16,6 +16,7 @@
 
     <!-- NEW: Global Marine Glass Theme -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 
     <title>AquaShop | {% block title %}{% endblock %}</title>
 </head>
@@ -38,69 +39,71 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-            <li class="nav-item">
-              <a class="nav-link nav-link-marine" href="/">Home</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link nav-link-marine" href="/story">Our Story</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link nav-link-marine" href="#">Contact</a>
-            </li>
+            
+            {% if current_user.is_authenticated and current_user.id == 1 %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-marine" href="/admin-page">Admin Dashboard</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-marine" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-marine" href="/story">Our Story</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-marine" href="#">Contact</a>
+                </li>
+            {% endif %}
 
           </ul>
 
-          <!-- SEARCH -->
+          {% if not (current_user.is_authenticated and current_user.id == 1) %}
           <form class="d-flex search-form" role="search" action="/search" method="POST">
             <input class="form-control marine-input" name="search" type="search" placeholder="Search">
             <button class="btn search-btn" type="submit">Search</button>
           </form>
+          {% endif %}
 
         </div>
 
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
-          <!-- CART -->
+          {% if not (current_user.is_authenticated and current_user.id == 1) %}
           <li class="nav-item mx-2">
-            {% if cart | length < 1 %}
-              <a class="nav-link nav-link-marine" href="/cart">
-                Cart <i class="fa-solid fa-cart-shopping"></i>
-              </a>
-            {% else %}
-              <a class="nav-link nav-link-marine" href="/cart">
-                Cart <i class="bi bi-{{ cart|length }}-square-fill"></i>
-              </a>
-            {% endif %}
-            
-            
+            <a class="nav-link nav-link-marine" href="/cart">
+                {% if cart | length < 1 %}
+                    Cart <i class="fa-solid fa-cart-shopping"></i>
+                {% else %}
+                    Cart <i class="bi bi-{{ cart|length }}-square-fill"></i>
+                {% endif %}
+            </a>
           </li>
 
           <!-- WISHLIST -->
           <li class="nav-item mx-2">
             <a class="nav-link nav-link-marine" href="#"><i class="fa-solid fa-heart"></i> Wishlist</a>
           </li>
+          {% endif %}
 
-          
           <li class="nav-item dropdown mx-2">
-            <a class="nav-link dropdown-toggle text-grey" href="#" role="button", id="profileDropdown" 
-            data-bs-toggle="dropdown" aria-hidden="false">
+            <a class="nav-link dropdown-toggle text-grey" href="#" role="button" id="profileDropdown" 
+            data-bs-toggle="dropdown" aria-expanded="false">
               Account
             </a>
-            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-
-            
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
               {% if current_user.is_authenticated %}
-              <li><a class="dropdown-item" href="/profile/{{ current_user.id }}">Profile <i class="fa-solid fa-user"></i></a></li>
-              <li><a class="dropdown-item" href="/orders">Orders <i class="fa-solid fa-truck-fast"></i></a></li>
-              <li><a class="dropdown-item" href="/logout">Log Out <i class="fa-solid fa-right-from-bracket"></i></a></li>
-
+                <li><a class="dropdown-item" href="/profile/{{ current_user.id }}">Profile <i class="fa-solid fa-user"></i></a></li>
+                {% if current_user.id != 1 %}
+                    <li><a class="dropdown-item" href="/orders">My Orders <i class="fa-solid fa-truck-fast"></i></a></li>
+                {% else %}
+                    <li><a class="dropdown-item" href="/admin/orders">All Orders <i class="fa-solid fa-list-check"></i></a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/logout">Log Out <i class="fa-solid fa-right-from-bracket"></i></a></li>
               {% else %}
-              
-              <li><a class="dropdown-item" href="/login">Login <i class="fa-solid fa-right-to-bracket"></i></a></li>
-
+                <li><a class="dropdown-item" href="/login">Login <i class="fa-solid fa-right-to-bracket"></i></a></li>
+                <li><a class="dropdown-item" href="/sign-up">Sign Up <i class="fa-solid fa-user-plus"></i></a></li>
               {% endif %}
 
             </ul>
@@ -113,18 +116,18 @@
       </div>
     </nav>
 
-<div class="flash-container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+    <div class="flash-container container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
 
     <!-- MAIN BODY -->
@@ -137,8 +140,7 @@
       2025 All rights reserved
     </footer>
 
-    <!-- JS -->
-    <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/myScript.js') }}"></script>
